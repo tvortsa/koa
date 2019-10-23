@@ -3,24 +3,24 @@
 
   В этом руководстве рассматриваются темы Koa, которые не имеют прямого отношения к API, такие как рекомендации по написанию промежуточного программного обеспечения и предложения по структуре приложения. В этих примерах мы используем асинхронные функции в качестве промежуточного программного обеспечения - вы также можете использовать commonFunction или generatorFunction, которые будут немного отличаться.
 
-## Table of Contents
+## Содержание
 
-- [Writing Middleware](#writing-middleware)
+- [НАписание Middleware](#writing-middleware)
 - [Middleware Best Practices](#middleware-best-practices)
-  - [Middleware options](#middleware-options)
-  - [Named middleware](#named-middleware)
-  - [Combining multiple middleware with koa-compose](#combining-multiple-middleware-with-koa-compose)
-  - [Response Middleware](#response-middleware)
-- [Async operations](#async-operations)
-- [Debugging Koa](#debugging-koa)
+  - [Middleware опции](#middleware-options)
+  - [Именование middleware](#named-middleware)
+  - [Комбинирование multiple middleware с koa-compose](#combining-multiple-middleware-with-koa-compose)
+  - [отклик Middleware](#response-middleware)
+- [Асинхронные операции](#async-operations)
+- [Отладка Koa](#debugging-koa)
 
-## Writing Middleware
+## Написание Middleware
 
-  Koa middleware are simple functions which return a `MiddlewareFunction` with signature (ctx, next). When
-  the middleware is run, it must manually invoke `next()` to run the "downstream" middleware.
+  Koa middleware простые функции, которые возвращают `MiddlewareFunction` с подписью (ctx, next). когда
+  промежуточное программное обеспечение запущено, оно должно вызываться вручную `next()` для запуска "downstream" middleware.
 
-  For example if you wanted to track how long it takes for a request to propagate through Koa by adding an
-  `X-Response-Time` header field the middleware would look like the following:
+  Например, если вы хотите отследить, сколько времени потребуется для распространения запроса через Коа, добавив
+  `X-Response-Time` поле заголовка промежуточное программное обеспечение будет выглядеть следующим образом:
 
 ```js
 async function responseTime(ctx, next) {
@@ -33,39 +33,38 @@ async function responseTime(ctx, next) {
 app.use(responseTime);
 ```
 
-  If you're a front-end developer you can think any code before `next();` as the "capture" phase,
-  while any code after is the "bubble" phase. This crude gif illustrates how async function allow us
-  to properly utilize stack flow to implement request and response flows:
+  Если вы являетесь разработчиком фронтэнда, вы можете придумать любой код перед `next();` как фаза "capture",
+  в то время как любой код после является фазой "bubble". Эта crude gif иллюстрирует, как асинхронная функция позволяет нам правильно использовать поток стека для реализации потоков запросов и ответов:
 
 ![Koa middleware](/docs/middleware.gif)
 
-   1. Create a date to track response time
-   2. Await control to the next middleware
-   3. Create another date to track duration
-   4. Await control to the next middleware
-   5. Set the response body to "Hello World"
-   6. Calculate duration time
-   7. Output log line
-   8. Calculate response time
-   9. Set `X-Response-Time` header field
-   10. Hand off to Koa to handle the response
+   1. Создать дату, чтобы отслеживать время ответа
+   2. Ожидайте управления следующим промежуточным ПО
+   3. Создать другую дату для отслеживания продолжительности
+   4. Ожидайте управления следующим промежуточным ПО
+   5. Установите тело ответа "Hello World"
+   6. Рассчитать продолжительность времени
+   7. Вывод строки в лог
+   8. Рассчитать время отклика
+   9. Задать `X-Response-Time` поле заголовка
+   10. Вручите Коа, чтобы обработать ответ
 
- Next we'll look at the best practices for creating Koa middleware.
+ Далее мы рассмотрим лучшие практики для создания Koa middleware.
 
-## Middleware Best Practices
+## Middleware Лучшие практики
 
-  This section covers middleware authoring best practices, such as middleware
-  accepting options, named middleware for debugging, among others.
+  Этот раздел охватывает лучших практик разработка middleware, таких как middleware
+  принятие опций, именование middleware для отладки, и другие.
 
-### Middleware options
+### Middleware опции
 
-  When creating public middleware it's useful to conform to the convention of
-  wrapping the middleware in a function that accepts options, allowing users to
-  extend functionality. Even if your middleware accepts _no_ options, this is still
-  a good idea to keep things uniform.
+  При создании public middleware полезно соответствовать конвенции
+  обертывание промежуточного программного обеспечения в функцию, которая принимает параметры,
+  позволяя пользователям расширять функциональность. 
+  Даже если ваше промежуточное ПО принимает _no_ опций, это все еще хорошая идея, чтобы держать вещи единообразно.
 
-  Here our contrived `logger` middleware accepts a `format` string for customization,
-  and returns the middleware itself:
+  Здесь наше искусственное промежуточное программное обеспечение `logger` принимает строку `format` для настройки,
+  и возвращает само промежуточное ПО:
 
 ```js
 function logger(format) {
@@ -86,9 +85,10 @@ app.use(logger());
 app.use(logger(':method :url'));
 ```
 
-### Named middleware
+### Именнованное middleware
 
-  Naming middleware is optional, however it's useful for debugging purposes to assign a name.
+  Именование промежуточного п.о. не является обязательным, 
+  однако для отладки полезно назначить имя.
 
 ```js
 function logger(format) {
@@ -98,9 +98,9 @@ function logger(format) {
 }
 ```
 
-### Combining multiple middleware with koa-compose
+### Объединение нескольких middleware с koa-compose
 
-  Sometimes you want to "compose" multiple middleware into a single middleware for easy re-use or exporting. You can use [koa-compose](https://github.com/koajs/compose)
+  Иногда вы хотите "compose" нескольких middleware в один middleware для легкого повторного использования или экспорта. Вы можете использовать [koa-compose](https://github.com/koajs/compose)
 
 ```js
 const compose = require('koa-compose');
@@ -134,12 +134,11 @@ const all = compose([random, backwards, pi]);
 app.use(all);
 ```
 
-### Response Middleware
+### Ответное промежуточное ПО
 
-  Middleware that decide to respond to a request and wish to bypass downstream middleware may
-  simply omit `next()`. Typically this will be in routing middleware, but this can be performed by
-  any. For example the following will respond with "two", however all three are executed, giving the
-  downstream "three" middleware a chance to manipulate the response.
+  Промежуточное программное обеспечение, которое решает ответить на запрос и хочет обойти нижестоящее промежуточное ПО, может просто опустите `next ()`. Как правило, это будет в маршрутизации middleware, но это может быть выполнено
+  Любым. Например, следующее ответит «два», однако все три будут выполнены, давая
+  нижестоящему «три» промежуточного программного обеспечения шанс манипулировать ответом.
 
 ```js
 app.use(async function (ctx, next) {
@@ -162,8 +161,8 @@ app.use(async function (ctx, next) {
 });
 ```
 
-  The following configuration omits `next()` in the second middleware, and will still respond
-  with "two", however the third (and any other downstream middleware) will be ignored:
+  Следующая конфигурация пропускает `next()` во втором middleware, и все равно ответит
+  с "two", Однако третий (и любой другой нижестоящий middleware) будут игнорироваться:
 
 ```js
 app.use(async function (ctx, next) {
@@ -185,14 +184,14 @@ app.use(async function (ctx, next) {
 });
 ```
 
-  When the furthest downstream middleware executes `next();`, it's really yielding to a noop
-  function, allowing the middleware to compose correctly anywhere in the stack.
+  Когда самый дальний downstream middleware исполняет `next();`, это действительно уступает
+  функция, позволяющая промежуточному программному обеспечению правильно составлять в любом месте стека.
 
-## Async operations
+## Асинхронные операции
 
-  Async function and promise forms Koa's foundation, allowing
-  you to write non-blocking sequential code. For example this middleware reads the filenames from `./docs`,
-  and then reads the contents of each markdown file in parallel before assigning the body to the joint result.
+  Async function и promise образует фундамент Коа, позволяющий
+  вам написать последовательный неблокирующий код. Например, это промежуточное ПО считывает имена файлов из `./docs`,
+  а затем читает содержимое каждого markdown параллельный файл перед назначением Body для совместного результата.
 
 
 ```js
@@ -207,7 +206,7 @@ app.use(async function (ctx, next) {
 });
 ```
 
-## Debugging Koa
+## Отладка Koa
 
   Koa along with many of the libraries it's built with support the __DEBUG__ environment variable from [debug](https://github.com/visionmedia/debug) which provides simple conditional logging.
 
